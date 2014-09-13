@@ -1,3 +1,7 @@
+--寄存器4-7保存识别结果--
+--寄存器0为指令--
+--其他三个保留--
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
@@ -6,7 +10,34 @@ use ieee.std_logic_unsigned.all;
 entity Image_Re_AXI_v1_0_S00_AXI is
 	generic (
 		-- Users to add parameters here
-
+		constant row_max:integer:=240;
+        constant col_max:integer:=180;
+        
+        constant y_r_max:integer:=255;
+        constant y_g_max:integer:=255;
+        constant y_b_max:integer:=50;
+        constant y_r_min:integer:=230;
+        constant y_g_min:integer:=230;
+        constant y_b_min:integer:=0;
+        
+        constant g_r_max:integer:=50;
+        constant g_g_max:integer:=255;
+        constant g_b_max:integer:=50;
+        constant g_r_min:integer:=0;
+        constant g_g_min:integer:=230;
+        constant g_b_min:integer:=0;
+        
+        constant b_r_max:integer:=50;
+        constant b_g_max:integer:=50;
+        constant b_b_max:integer:=255;
+        constant b_r_min:integer:=0;
+        constant b_g_min:integer:=0;
+        constant b_b_min:integer:=230;
+        
+        constant diff_max:integer:=50;
+        constant diff_min:integer:=30;
+        
+        constant Cmd_Start:std_logic_vector(31 downto 0):=x"00000001";
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
 
@@ -17,6 +48,10 @@ entity Image_Re_AXI_v1_0_S00_AXI is
 	);
 	port (
 		-- Users to add ports here
+		inclk:in std_logic;
+        --from row_max and col_max--
+        addr:out std_logic_vector(15 downto 0):="0000000000000000";
+        rgb24:in std_logic_vector(23 downto 0);
 
 		-- User ports ends
 		-- Do not modify the ports beyond this line
@@ -85,6 +120,68 @@ entity Image_Re_AXI_v1_0_S00_AXI is
 end Image_Re_AXI_v1_0_S00_AXI;
 
 architecture arch_imp of Image_Re_AXI_v1_0_S00_AXI is
+    component IMAGE_REC is
+        generic
+            (
+                constant row_max:integer:=240;
+                constant col_max:integer:=180;
+                
+                constant y_r_max:integer:=255;
+                constant y_g_max:integer:=255;
+                constant y_b_max:integer:=50;
+                constant y_r_min:integer:=230;
+                constant y_g_min:integer:=230;
+                constant y_b_min:integer:=0;
+                
+                constant g_r_max:integer:=50;
+                constant g_g_max:integer:=255;
+                constant g_b_max:integer:=50;
+                constant g_r_min:integer:=0;
+                constant g_g_min:integer:=230;
+                constant g_b_min:integer:=0;
+                
+                constant b_r_max:integer:=50;
+                constant b_g_max:integer:=50;
+                constant b_b_max:integer:=255;
+                constant b_r_min:integer:=0;
+                constant b_g_min:integer:=0;
+                constant b_b_min:integer:=230;
+                
+                constant diff_max:integer:=50;
+                constant diff_min:integer:=30
+            );
+        port
+            (
+                inclk:in std_logic;
+                start:in std_logic:='0';
+                --from row_max and col_max--
+                addr:out std_logic_vector(15 downto 0):="0000000000000000";
+                rgb24:in std_logic_vector(23 downto 0);
+                --result is for 32bits axi-bus--
+                --high 16bits->yes/no;low 3bits->y/g/b->yes/no--
+                re_all:out std_logic_vector(31 downto 0):=x"00000000";
+                --for yellow ball's center x(high 16bits)/y(low 16bits)--
+                re_yellow:out std_logic_vector(31 downto 0):=x"00000000";
+                --for green ball's center x(high 16bits)/y(low 16bits)--
+                re_green:out std_logic_vector(31 downto 0):=x"00000000";
+                --for blue ball's center x(high 16bits)/y(low 16bits)--
+                re_blue:out std_logic_vector(31 downto 0):=x"00000000";
+                fin:out std_logic:='0'
+            );
+    end component;
+
+    signal clks:std_logic;
+    signal im_start:std_logic:='0';
+    --result is for 32bits axi-bus--
+    --high 16bits->yes/no;low 3bits->y/g/b->yes/no--
+    signal re_all:std_logic_vector(31 downto 0):=x"00000000";
+    --for yellow ball's center x(high 16bits)/y(low 16bits)--
+    signal re_yellow:std_logic_vector(31 downto 0):=x"00000000";
+    --for green ball's center x(high 16bits)/y(low 16bits)--
+    signal re_green:std_logic_vector(31 downto 0):=x"00000000";
+    --for blue ball's center x(high 16bits)/y(low 16bits)--
+    signal re_blue:std_logic_vector(31 downto 0):=x"00000000";
+    signal im_fin:std_logic:='0';
 
 	-- AXI4LITE signals
 	signal axi_awaddr	: std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -110,6 +207,7 @@ architecture arch_imp of Image_Re_AXI_v1_0_S00_AXI is
 	--------------------------------------------------
 	---- Number of Slave Registers 8
 	signal slv_reg0	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+    signal slv_reg0_last	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg1	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg2	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg3	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
@@ -124,7 +222,6 @@ architecture arch_imp of Image_Re_AXI_v1_0_S00_AXI is
 
 begin
 	-- I/O Connections assignments
-
 	S_AXI_AWREADY	<= axi_awready;
 	S_AXI_WREADY	<= axi_wready;
 	S_AXI_BRESP	<= axi_bresp;
@@ -137,6 +234,49 @@ begin
 	-- axi_awready is asserted for one S_AXI_ACLK clock cycle when both
 	-- S_AXI_AWVALID and S_AXI_WVALID are asserted. axi_awready is
 	-- de-asserted when reset is low.
+	clks<=inclk;
+	im:IMAGE_REC
+	   generic map
+	       (
+                row_max=>row_max,
+                col_max=>col_max,
+                
+                y_r_max=>y_r_max,
+                y_g_max=>y_g_max,
+                y_b_max=>y_b_max,
+                y_r_min=>y_r_min,
+                y_g_min=>y_g_min,
+                y_b_min=>y_b_min,
+                
+                g_r_max=>g_r_max,
+                g_g_max=>g_g_max,
+                g_b_max=>g_b_max,
+                g_r_min=>g_r_min,
+                g_g_min=>g_g_min,
+                g_b_min=>g_b_min,
+                
+                b_r_max=>b_r_max,
+                b_g_max=>b_g_max,
+                b_b_max=>b_b_max,
+                b_r_min=>b_r_min,
+                b_g_min=>b_g_min,
+                b_b_min=>b_b_min,
+                
+                diff_max=>diff_max,
+                diff_min=>diff_min
+	       )
+	   port map
+	       (
+	           inclk=>clks,
+	           start=>im_start,
+	           addr=>addr,
+	           rgb24=>rgb24,
+	           re_all=>re_all,
+	           re_yellow=>re_yellow,
+	           re_green=>re_green,
+	           re_blue=>re_blue,
+	           fin=>im_fin
+	       );
 
 	process (S_AXI_ACLK)
 	begin
@@ -217,10 +357,6 @@ begin
 	      slv_reg1 <= (others => '0');
 	      slv_reg2 <= (others => '0');
 	      slv_reg3 <= (others => '0');
-	      slv_reg4 <= (others => '0');
-	      slv_reg5 <= (others => '0');
-	      slv_reg6 <= (others => '0');
-	      slv_reg7 <= (others => '0');
 	    else
 	      loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	      if (slv_reg_wren = '1') then
@@ -257,47 +393,11 @@ begin
 	                slv_reg3(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
-	          when b"100" =>
-	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 4
-	                slv_reg4(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-	              end if;
-	            end loop;
-	          when b"101" =>
-	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 5
-	                slv_reg5(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-	              end if;
-	            end loop;
-	          when b"110" =>
-	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 6
-	                slv_reg6(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-	              end if;
-	            end loop;
-	          when b"111" =>
-	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 7
-	                slv_reg7(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-	              end if;
-	            end loop;
 	          when others =>
 	            slv_reg0 <= slv_reg0;
 	            slv_reg1 <= slv_reg1;
 	            slv_reg2 <= slv_reg2;
 	            slv_reg3 <= slv_reg3;
-	            slv_reg4 <= slv_reg4;
-	            slv_reg5 <= slv_reg5;
-	            slv_reg6 <= slv_reg6;
-	            slv_reg7 <= slv_reg7;
 	        end case;
 	      end if;
 	    end if;
@@ -436,6 +536,30 @@ begin
 
 
 	-- Add user logic here
+	ImMain:process(clks)
+	begin
+	   
+        if rising_edge(clks) then
+            slv_reg0_last<=slv_reg0;
+            if slv_reg0/=slv_reg0_last then
+                case slv_reg0 is
+                    when Cmd_Start=>
+                        im_start<='1';
+                    when others=>
+                        im_start<='0';
+                end case;
+            else
+                im_start<='0';
+            end if;
+            
+            slv_reg4<=re_all;
+            slv_reg5<=re_yellow;
+            slv_reg6<=re_green;
+            slv_reg7<=re_blue;
+            
+        end if;
+    
+    end process;
 
 	-- User logic ends
 

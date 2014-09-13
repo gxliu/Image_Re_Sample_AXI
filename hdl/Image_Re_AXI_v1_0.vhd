@@ -6,7 +6,32 @@ use ieee.std_logic_unsigned.all;
 entity Image_Re_AXI_v1_0 is
 	generic (
 		-- Users to add parameters here
-
+        constant row_max:integer:=240;
+        constant col_max:integer:=180;
+        
+        constant y_r_max:integer:=255;
+        constant y_g_max:integer:=255;
+        constant y_b_max:integer:=50;
+        constant y_r_min:integer:=230;
+        constant y_g_min:integer:=230;
+        constant y_b_min:integer:=0;
+        
+        constant g_r_max:integer:=50;
+        constant g_g_max:integer:=255;
+        constant g_b_max:integer:=50;
+        constant g_r_min:integer:=0;
+        constant g_g_min:integer:=230;
+        constant g_b_min:integer:=0;
+        
+        constant b_r_max:integer:=50;
+        constant b_g_max:integer:=50;
+        constant b_b_max:integer:=255;
+        constant b_r_min:integer:=0;
+        constant b_g_min:integer:=0;
+        constant b_b_min:integer:=230;
+        
+        constant diff_max:integer:=50;
+        constant diff_min:integer:=30;
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
 
@@ -17,6 +42,10 @@ entity Image_Re_AXI_v1_0 is
 	);
 	port (
 		-- Users to add ports here
+		inclk:in std_logic;
+        --from row_max and col_max--
+        addr:out std_logic_vector(15 downto 0):="0000000000000000";
+        rgb24:in std_logic_vector(23 downto 0);
 
 		-- User ports ends
 		-- Do not modify the ports beyond this line
@@ -53,9 +82,39 @@ architecture arch_imp of Image_Re_AXI_v1_0 is
 	component Image_Re_AXI_v1_0_S00_AXI is
 		generic (
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
-		C_S_AXI_ADDR_WIDTH	: integer	:= 5
+		C_S_AXI_ADDR_WIDTH	: integer	:= 5;
+		constant row_max:integer:=240;
+        constant col_max:integer:=180;
+        
+        constant y_r_max:integer:=255;
+        constant y_g_max:integer:=255;
+        constant y_b_max:integer:=50;
+        constant y_r_min:integer:=230;
+        constant y_g_min:integer:=230;
+        constant y_b_min:integer:=0;
+        
+        constant g_r_max:integer:=50;
+        constant g_g_max:integer:=255;
+        constant g_b_max:integer:=50;
+        constant g_r_min:integer:=0;
+        constant g_g_min:integer:=230;
+        constant g_b_min:integer:=0;
+        
+        constant b_r_max:integer:=50;
+        constant b_g_max:integer:=50;
+        constant b_b_max:integer:=255;
+        constant b_r_min:integer:=0;
+        constant b_g_min:integer:=0;
+        constant b_b_min:integer:=230;
+        
+        constant diff_max:integer:=50;
+        constant diff_min:integer:=30
 		);
 		port (
+		inclk:in std_logic;
+        --from row_max and col_max--
+        addr:out std_logic_vector(15 downto 0):="0000000000000000";
+        rgb24:in std_logic_vector(23 downto 0);
 		S_AXI_ACLK	: in std_logic;
 		S_AXI_ARESETN	: in std_logic;
 		S_AXI_AWADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -86,9 +145,38 @@ begin
 Image_Re_AXI_v1_0_S00_AXI_inst : Image_Re_AXI_v1_0_S00_AXI
 	generic map (
 		C_S_AXI_DATA_WIDTH	=> C_S00_AXI_DATA_WIDTH,
-		C_S_AXI_ADDR_WIDTH	=> C_S00_AXI_ADDR_WIDTH
+		C_S_AXI_ADDR_WIDTH	=> C_S00_AXI_ADDR_WIDTH,
+		row_max=>row_max,
+        col_max=>col_max,
+        
+        y_r_max=>y_r_max,
+        y_g_max=>y_g_max,
+        y_b_max=>y_b_max,
+        y_r_min=>y_r_min,
+        y_g_min=>y_g_min,
+        y_b_min=>y_b_min,
+        
+        g_r_max=>g_r_max,
+        g_g_max=>g_g_max,
+        g_b_max=>g_b_max,
+        g_r_min=>g_r_min,
+        g_g_min=>g_g_min,
+        g_b_min=>g_b_min,
+        
+        b_r_max=>b_r_max,
+        b_g_max=>b_g_max,
+        b_b_max=>b_b_max,
+        b_r_min=>b_r_min,
+        b_g_min=>b_g_min,
+        b_b_min=>b_b_min,
+        
+        diff_max=>diff_max,
+        diff_min=>diff_min
 	)
 	port map (
+	    inclk=>inclk,
+	    addr=>addr,
+	    rgb24=>rgb24,
 		S_AXI_ACLK	=> s00_axi_aclk,
 		S_AXI_ARESETN	=> s00_axi_aresetn,
 		S_AXI_AWADDR	=> s00_axi_awaddr,
