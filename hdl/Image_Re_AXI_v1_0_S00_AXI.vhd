@@ -12,6 +12,7 @@ entity Image_Re_AXI_v1_0_S00_AXI is
 		-- Users to add parameters here
 		constant row_max:integer:=240;
         constant col_max:integer:=180;
+        constant addr_width:integer:=16;
         
         constant y_r_max:integer:=255;
         constant y_g_max:integer:=255;
@@ -50,7 +51,7 @@ entity Image_Re_AXI_v1_0_S00_AXI is
 		-- Users to add ports here
 		inclk:in std_logic;
         --from row_max and col_max--
-        addr:out std_logic_vector(15 downto 0):="0000000000000000";
+        addr:out std_logic_vector(addr_width-1 downto 0);
         rgb24:in std_logic_vector(23 downto 0);
 
 		-- User ports ends
@@ -125,6 +126,7 @@ architecture arch_imp of Image_Re_AXI_v1_0_S00_AXI is
             (
                 constant row_max:integer:=240;
                 constant col_max:integer:=180;
+                constant addr_width:integer:=16;
                 
                 constant y_r_max:integer:=255;
                 constant y_g_max:integer:=255;
@@ -155,7 +157,7 @@ architecture arch_imp of Image_Re_AXI_v1_0_S00_AXI is
                 inclk:in std_logic;
                 start:in std_logic:='0';
                 --from row_max and col_max--
-                addr:out std_logic_vector(15 downto 0):="0000000000000000";
+                addr:out std_logic_vector(addr_width-1 downto 0);
                 rgb24:in std_logic_vector(23 downto 0);
                 --result is for 32bits axi-bus--
                 --high 16bits->yes/no;low 3bits->y/g/b->yes/no--
@@ -166,7 +168,10 @@ architecture arch_imp of Image_Re_AXI_v1_0_S00_AXI is
                 re_green:out std_logic_vector(31 downto 0):=x"00000000";
                 --for blue ball's center x(high 16bits)/y(low 16bits)--
                 re_blue:out std_logic_vector(31 downto 0):=x"00000000";
-                fin:out std_logic:='0'
+                fin:out std_logic:='0';
+                
+                test_addr:out std_logic_vector(addr_width-1 downto 0);
+                test_data:out std_logic_vector(23 downto 0)
             );
     end component;
 
@@ -182,6 +187,8 @@ architecture arch_imp of Image_Re_AXI_v1_0_S00_AXI is
     --for blue ball's center x(high 16bits)/y(low 16bits)--
     signal re_blue:std_logic_vector(31 downto 0):=x"00000000";
     signal im_fin:std_logic:='0';
+    signal test_addr:std_logic_vector(addr_width-1 downto 0);
+    signal test_data:std_logic_vector(23 downto 0);
 
 	-- AXI4LITE signals
 	signal axi_awaddr	: std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -240,6 +247,7 @@ begin
 	       (
                 row_max=>row_max,
                 col_max=>col_max,
+                addr_width=>addr_width,
                 
                 y_r_max=>y_r_max,
                 y_g_max=>y_g_max,
@@ -275,7 +283,10 @@ begin
 	           re_yellow=>re_yellow,
 	           re_green=>re_green,
 	           re_blue=>re_blue,
-	           fin=>im_fin
+	           fin=>im_fin,
+	           
+	           test_addr=>test_addr,
+	           test_data=>test_data
 	       );
 
 	process (S_AXI_ACLK)
@@ -355,8 +366,8 @@ begin
 	    if S_AXI_ARESETN = '0' then
 	      slv_reg0 <= (others => '0');
 	      slv_reg1 <= (others => '0');
-	      slv_reg2 <= (others => '0');
-	      slv_reg3 <= (others => '0');
+--	      slv_reg2 <= (others => '0');
+--	      slv_reg3 <= (others => '0');
 	    else
 	      loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	      if (slv_reg_wren = '1') then
@@ -377,27 +388,27 @@ begin
 	                slv_reg1(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
-	          when b"010" =>
-	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 2
-	                slv_reg2(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-	              end if;
-	            end loop;
-	          when b"011" =>
-	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
-	                -- Respective byte enables are asserted as per write strobes                   
-	                -- slave registor 3
-	                slv_reg3(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-	              end if;
-	            end loop;
+--	          when b"010" =>
+--	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
+--	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
+--	                -- Respective byte enables are asserted as per write strobes                   
+--	                -- slave registor 2
+--	                slv_reg2(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+--	              end if;
+--	            end loop;
+--	          when b"011" =>
+--	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
+--	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
+--	                -- Respective byte enables are asserted as per write strobes                   
+--	                -- slave registor 3
+--	                slv_reg3(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+--	              end if;
+--	            end loop;
 	          when others =>
 	            slv_reg0 <= slv_reg0;
 	            slv_reg1 <= slv_reg1;
-	            slv_reg2 <= slv_reg2;
-	            slv_reg3 <= slv_reg3;
+--	            slv_reg2 <= slv_reg2;
+--	            slv_reg3 <= slv_reg3;
 	        end case;
 	      end if;
 	    end if;
@@ -556,6 +567,9 @@ begin
             slv_reg5<=re_yellow;
             slv_reg6<=re_green;
             slv_reg7<=re_blue;
+            
+            slv_reg2(addr_width-1 downto 0)<=test_addr;
+            slv_reg3(23 downto 0)<=test_data;
             
         end if;
     

@@ -8,6 +8,7 @@ entity Image_Re_AXI_v1_0 is
 		-- Users to add parameters here
         constant row_max:integer:=240;
         constant col_max:integer:=180;
+        constant addr_width:integer:=16;
         
         constant y_r_max:integer:=255;
         constant y_g_max:integer:=255;
@@ -44,7 +45,7 @@ entity Image_Re_AXI_v1_0 is
 		-- Users to add ports here
 		inclk:in std_logic;
         --from row_max and col_max--
-        addr:out std_logic_vector(15 downto 0):="0000000000000000";
+        addr:out std_logic_vector(addr_width-1 downto 0);
         rgb24:in std_logic_vector(23 downto 0);
 
 		-- User ports ends
@@ -85,6 +86,7 @@ architecture arch_imp of Image_Re_AXI_v1_0 is
 		C_S_AXI_ADDR_WIDTH	: integer	:= 5;
 		constant row_max:integer:=240;
         constant col_max:integer:=180;
+        constant addr_width:integer:=16;
         
         constant y_r_max:integer:=255;
         constant y_g_max:integer:=255;
@@ -113,7 +115,7 @@ architecture arch_imp of Image_Re_AXI_v1_0 is
 		port (
 		inclk:in std_logic;
         --from row_max and col_max--
-        addr:out std_logic_vector(15 downto 0):="0000000000000000";
+        addr:out std_logic_vector(addr_width-1 downto 0);
         rgb24:in std_logic_vector(23 downto 0);
 		S_AXI_ACLK	: in std_logic;
 		S_AXI_ARESETN	: in std_logic;
@@ -148,6 +150,7 @@ Image_Re_AXI_v1_0_S00_AXI_inst : Image_Re_AXI_v1_0_S00_AXI
 		C_S_AXI_ADDR_WIDTH	=> C_S00_AXI_ADDR_WIDTH,
 		row_max=>row_max,
         col_max=>col_max,
+        addr_width=>addr_width,
         
         y_r_max=>y_r_max,
         y_g_max=>y_g_max,

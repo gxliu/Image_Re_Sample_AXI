@@ -1,4 +1,4 @@
---先判断颜色
+--先判断颜�?
 --将最大x/y，最小x/y放入集合
 --判断xmax-xmin和ymax-ymin是否在范围内
 
@@ -14,6 +14,7 @@ generic
 	(
 		constant row_max:integer:=240;
 		constant col_max:integer:=180;
+		constant addr_width:integer:=16;
 		
 		constant y_r_max:integer:=255;
 		constant y_g_max:integer:=255;
@@ -49,7 +50,7 @@ port
 		inclk:in std_logic;
 		start:in std_logic:='0';
 		--from row_max and col_max--
-		addr:out std_logic_vector(15 downto 0):="0000000000000000";
+		addr:out std_logic_vector(addr_width-1 downto 0);
 		rgb24:in std_logic_vector(23 downto 0);
 		--result is for 32bits axi-bus--
 		--high 16bits->yes/no;low 3bits->y/g/b->yes/no--
@@ -60,7 +61,10 @@ port
 		re_green:out std_logic_vector(31 downto 0):=x"00000000";
 		--for blue ball's center x(high 16bits)/y(low 16bits)--
 		re_blue:out std_logic_vector(31 downto 0):=x"00000000";
-		fin:out std_logic:='0'
+		fin:out std_logic:='0';
+		
+		test_addr:out std_logic_vector(addr_width-1 downto 0);
+        test_data:out std_logic_vector(23 downto 0)
 	);
 end entity;
 
@@ -70,7 +74,7 @@ type max_min is array(1 downto 0) of integer;
 
 signal start_last,re_allow,res_allow:std_logic:='0';
 signal r,g,b:std_logic_vector(7 downto 0);
-signal addr_s:std_logic_vector(15 downto 0):="0000000000000000";
+signal addr_s:std_logic_vector(addr_width-1 downto 0);
 
 signal y_c,g_c,b_c:max_min:=(0,col_max);
 signal y_r,g_r,b_r:max_min:=(0,row_max);
@@ -88,6 +92,9 @@ r<=rgb24(23 downto 16);
 g<=rgb24(15 downto 8);
 b<=rgb24(7 downto 0);	
 
+test_addr<=addr_s;
+test_data<=rgb24;
+
 State:process(inclk)
 
 begin
@@ -104,7 +111,7 @@ begin
 			re_allow<='1';
 			res_allow<='0';
 			fin<='0';
-			addr_s<="0000000000000000";
+			addr_s<=conv_std_logic_vector(0,addr_width);
 		else
 			
 			case res_allow is
