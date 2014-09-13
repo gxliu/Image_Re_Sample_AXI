@@ -12,28 +12,29 @@ s32 ImReInit(ImRe *im,u32 BaseAddress)
 	im->Re_All=BaseAddress+IMAGE_RE_ALL_OFFSET;
 	im->Re_Y=BaseAddress+IMAGE_RE_Y_OFFSET;
 	im->Re_G=BaseAddress+IMAGE_RE_G_OFFSET;
-	im->Re_G=BaseAddress+IMAGE_RE_B_OFFSET;
+	im->Re_B=BaseAddress+IMAGE_RE_B_OFFSET;
 	return (XST_SUCCESS);
 }
 
 
-void ImStart(ImRe *im)
+void ImReStart(ImRe *im)
 {
+	ImRe_WriteReg(im->Cmd,0);
 	ImRe_WriteReg(im->Cmd,Im_Cmd_Start);
 	return;
 }
 
-u16 ImCheck(ImRe *im)
+u16 ImReCheck(ImRe *im)
 {
 	u32 res;
 	u16 result[2];
 	res=ImRe_ReadReg(im->Re_All);
-	memcpy(&result,&res,2);
+	memcpy(&result,&res,4);
 	if (result[1]==Im_Re_Yes)
 	{
 		im->ys=result[0]&Im_Y_Mask;
-		im->gs=(result[0]&Im_Y_Mask)>>1;
-		im->bs=(result[0]&Im_Y_Mask)>>2;
+		im->gs=(result[0]&Im_G_Mask)>>1;
+		im->bs=(result[0]&Im_B_Mask)>>2;
 	}
 	else if(result[1]==Im_Re_No)
 	{
@@ -50,31 +51,33 @@ void ImReWork(ImRe *im)
 	u16 State;
 	u32 res;
 	u16 result[2];
-	ImStart(ImRe *im);
-	while(1)
+	ImReStart(im);
+	usleep(1000);
+	u32 addr=ImRe_ReadReg(XPAR_IMAGE_RE_AXI_0_S00_AXI_BASEADDR+IMAGE_RE_AXI_S00_AXI_SLV_REG2_OFFSET);
+	u32 data=ImRe_ReadReg(XPAR_IMAGE_RE_AXI_0_S00_AXI_BASEADDR+IMAGE_RE_AXI_S00_AXI_SLV_REG3_OFFSET);
 	{
 		usleep(10000);
-		State=ImCheck(im);
+		State=ImReCheck(im);
 		if (State==Im_Re_Yes)
 		{
 			if (im->ys==1)
 			{
 				res=ImRe_ReadReg(im->Re_Y);
-				memcpy(&result,&res,2);
+				memcpy(&result,&res,4);
 				im->yx=result[1];
 				im->yy=result[0];
 			}
 			if (im->gs==1)
 			{
 				res=ImRe_ReadReg(im->Re_G);
-				memcpy(&result,&res,2);
+				memcpy(&result,&res,4);
 				im->gx=result[1];
 				im->gy=result[0];
 			}
 			if (im->bs==1)
 			{
 				res=ImRe_ReadReg(im->Re_B);
-				memcpy(&result,&res,2);
+				memcpy(&result,&res,4);
 				im->bx=result[1];
 				im->by=result[0];
 			}

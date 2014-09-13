@@ -8,6 +8,7 @@
 #include "xil_types.h"
 #include "xstatus.h"
 #include "xil_io.h"
+#include "unistd.h"
 
 #define IMAGE_RE_AXI_S00_AXI_SLV_REG0_OFFSET 0
 #define IMAGE_RE_AXI_S00_AXI_SLV_REG1_OFFSET 4
@@ -91,8 +92,7 @@ typedef struct
  *
  */
 #define ImRe_ReadReg(Address) \
-    Xil_In32(Address)
-
+		Xil_In32(Address)
 /************************** Function Prototypes ****************************/
 /**
  *
@@ -114,5 +114,10 @@ typedef struct
  *
  */
 XStatus IMAGE_RE_AXI_Reg_SelfTest(void * baseaddr_p);
+
+s32 ImReInit(ImRe *im,u32 BaseAddress);
+void ImReStart(ImRe *im);
+u16 ImReCheck(ImRe *im);
+void ImReWork(ImRe *im);
 
 #endif // IMAGE_RE_AXI_H
