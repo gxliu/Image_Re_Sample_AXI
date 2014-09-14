@@ -12,8 +12,11 @@ use ieee.std_logic_unsigned.all;
 entity IMAGE_REC is
 generic
 	(
+	    constant data_delay:integer:=2;
 		constant row_max:integer:=240;
 		constant col_max:integer:=180;
+		constant row_max_bit:integer:=8;
+		constant col_max_bit:integer:=8;
 		constant addr_width:integer:=16;
 		
 		constant y_r_max:integer:=255;
@@ -63,8 +66,11 @@ port
 		re_blue:out std_logic_vector(31 downto 0):=x"00000000";
 		fin:out std_logic:='0';
 		
-		test_addr:out std_logic_vector(addr_width-1 downto 0);
-        test_data:out std_logic_vector(23 downto 0)
+		--rwo and col now--
+		--col--
+		HCNT:out std_logic_vector(col_max_bit-1 downto 0);
+        --row--
+        VCNT:out std_logic_vector(row_max_bit-1 downto 0)
 	);
 end entity;
 
@@ -81,19 +87,19 @@ signal y_r,g_r,b_r:max_min:=(0,row_max);
 signal y_fin,g_fin,b_fin:std_logic:='0';
 signal y_in,g_in,b_in:std_logic:='0';
 
-signal con_re:integer range 0 to 3:=0;
+signal con_re:integer range 0 to data_delay+1:=0;
 signal con_row:integer range 0 to row_max-1:=0;
 signal con_col:integer range 0 to col_max-1:=0;
 
 begin
+
+VCNT<=conv_std_logic_vector(con_row,col_max_bit);
+HCNT<=conv_std_logic_vector(con_col,col_max_bit);
 	
 addr<=addr_s;
 r<=rgb24(23 downto 16);
 g<=rgb24(15 downto 8);
 b<=rgb24(7 downto 0);	
-
-test_addr<=addr_s;
-test_data<=rgb24;
 
 State:process(inclk)
 
@@ -151,7 +157,7 @@ begin
 			case re_allow is
 				when '1'=>
 					case con_re is
-						when 3=>
+						when data_delay+1=>
 							con_re<=0;
 							addr_s<=addr_s+1;
 							if con_col=col_max-1 then
@@ -196,7 +202,7 @@ begin
 			case re_allow is
 				when '1'=>
 					case con_re is
-						when 2=>
+						when data_delay=>
 							if (r>=y_r_min and r<=y_r_max) and (g>=y_g_min and g<=y_g_max) and (b>=y_b_min and b<=y_b_max) then
 								if con_col>y_r(1) then
 									y_c(1)<=con_col;
@@ -212,7 +218,7 @@ begin
 							else
 								y_c<=y_c;
 							end if;
-						when 3=>
+						when data_delay+1=>
 							if (r>=y_r_min and r<=y_r_max) and (g>=y_r_min and g<=y_g_max) and (b>=y_b_min and b<=y_b_max) then
 								if con_row>y_r(1) then
 									y_r(1)<=con_row;
@@ -284,7 +290,7 @@ begin
 				when '1'=>
 									
 					case con_re is
-						when 2=>
+						when data_delay=>
 							if (r>=g_r_min and r<=g_r_max) and (g>=g_g_min and g<=g_g_max) and (b>=g_b_min and b<=g_b_max) then
 								if con_col>g_c(1) then
 									g_c(1)<=con_col;
@@ -300,7 +306,7 @@ begin
 							else
 								g_c<=g_c;
 							end if;
-						when 3=>
+						when data_delay+1=>
 							if (r>=g_r_min and r<=g_r_max) and (g>=g_g_min and g<=g_g_max) and (b>=g_b_min and b<=g_b_max) then
 								if con_row>g_r(1) then
 									g_r(1)<=con_row;
@@ -373,7 +379,7 @@ begin
 					
 					case con_re is
 					
-						when 2=>
+						when data_delay=>
 							if (r>=b_r_min and r<=b_r_max) and (g>=b_g_min and g<=b_g_max) and (b>=b_b_min and b<=b_b_max) then
 								if con_col>b_r(1) then
 									b_c(1)<=con_col;
@@ -390,7 +396,7 @@ begin
 								b_c<=b_c;
 							end if;
 
-						when 3=>
+						when data_delay+1=>
 							if (r>=b_r_min and r<=b_r_max) and (g>=b_g_min and g<=b_g_max) and (b>=b_b_min and b<=b_b_max) then
 								if con_row>b_r(1) then
 									b_r(1)<=con_row;

@@ -6,8 +6,11 @@ use ieee.std_logic_unsigned.all;
 entity Image_Re_AXI_v1_0 is
 	generic (
 		-- Users to add parameters here
+		constant data_delay:integer:=2;
         constant row_max:integer:=240;
         constant col_max:integer:=180;
+        constant row_max_bit:integer:=8;
+        constant col_max_bit:integer:=8;
         constant addr_width:integer:=16;
         
         constant y_r_max:integer:=255;
@@ -47,6 +50,13 @@ entity Image_Re_AXI_v1_0 is
         --from row_max and col_max--
         addr:out std_logic_vector(addr_width-1 downto 0);
         rgb24:in std_logic_vector(23 downto 0);
+        
+        --rwo and col now--
+        --col--
+        HCNT:out std_logic_vector(col_max_bit-1 downto 0);
+        --row--
+        VCNT:out std_logic_vector(row_max_bit-1 downto 0);
+        
 
 		-- User ports ends
 		-- Do not modify the ports beyond this line
@@ -84,8 +94,11 @@ architecture arch_imp of Image_Re_AXI_v1_0 is
 		generic (
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
 		C_S_AXI_ADDR_WIDTH	: integer	:= 5;
+		constant data_delay:integer:=2;
 		constant row_max:integer:=240;
         constant col_max:integer:=180;
+        constant row_max_bit:integer:=8;
+        constant col_max_bit:integer:=8;
         constant addr_width:integer:=16;
         
         constant y_r_max:integer:=255;
@@ -117,6 +130,11 @@ architecture arch_imp of Image_Re_AXI_v1_0 is
         --from row_max and col_max--
         addr:out std_logic_vector(addr_width-1 downto 0);
         rgb24:in std_logic_vector(23 downto 0);
+        --rwo and col now--
+        --col--
+        HCNT:out std_logic_vector(col_max_bit-1 downto 0);
+        --row--
+        VCNT:out std_logic_vector(row_max_bit-1 downto 0);
 		S_AXI_ACLK	: in std_logic;
 		S_AXI_ARESETN	: in std_logic;
 		S_AXI_AWADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -148,8 +166,11 @@ Image_Re_AXI_v1_0_S00_AXI_inst : Image_Re_AXI_v1_0_S00_AXI
 	generic map (
 		C_S_AXI_DATA_WIDTH	=> C_S00_AXI_DATA_WIDTH,
 		C_S_AXI_ADDR_WIDTH	=> C_S00_AXI_ADDR_WIDTH,
+		data_delay=>data_delay,
 		row_max=>row_max,
         col_max=>col_max,
+        row_max_bit=>row_max_bit,
+        col_max_bit=>row_max_bit,
         addr_width=>addr_width,
         
         y_r_max=>y_r_max,
@@ -180,6 +201,8 @@ Image_Re_AXI_v1_0_S00_AXI_inst : Image_Re_AXI_v1_0_S00_AXI
 	    inclk=>inclk,
 	    addr=>addr,
 	    rgb24=>rgb24,
+	    HCNT=>HCNT,
+       VCNT=>VCNT,
 		S_AXI_ACLK	=> s00_axi_aclk,
 		S_AXI_ARESETN	=> s00_axi_aresetn,
 		S_AXI_AWADDR	=> s00_axi_awaddr,

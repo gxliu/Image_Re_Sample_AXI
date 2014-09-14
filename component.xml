@@ -266,7 +266,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>ae6ff1e8</spirit:value>
+            <spirit:value>63a0f55b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -282,7 +282,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>ae6ff1e8</spirit:value>
+            <spirit:value>63a0f55b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -296,7 +296,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>2a26e4a4</spirit:value>
+            <spirit:value>6487e3db</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -310,7 +310,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>520dbffd</spirit:value>
+            <spirit:value>39e43745</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -366,6 +366,40 @@
           <spirit:direction>in</spirit:direction>
           <spirit:vector>
             <spirit:left spirit:format="long" spirit:resolve="immediate">23</spirit:left>
+            <spirit:right spirit:format="long" spirit:resolve="immediate">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>HCNT</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.col_max_bit&apos;)) - 1)">7</spirit:left>
+            <spirit:right spirit:format="long" spirit:resolve="immediate">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>VCNT</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.row_max_bit&apos;)) - 1)">7</spirit:left>
             <spirit:right spirit:format="long" spirit:resolve="immediate">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -689,6 +723,11 @@
     </spirit:ports>
     <spirit:modelParameters>
       <spirit:modelParameter xsi:type="spirit:nameValueTypeType" spirit:dataType="integer">
+        <spirit:name>data_delay</spirit:name>
+        <spirit:displayName>Data Delay</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.data_delay">2</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>row_max</spirit:name>
         <spirit:displayName>Row Max</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.row_max">240</spirit:value>
@@ -697,6 +736,16 @@
         <spirit:name>col_max</spirit:name>
         <spirit:displayName>Col Max</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.col_max">180</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>row_max_bit</spirit:name>
+        <spirit:displayName>Row Max Bit</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.row_max_bit">8</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>col_max_bit</spirit:name>
+        <spirit:displayName>Col Max Bit</spirit:displayName>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.col_max_bit">8</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>addr_width</spirit:name>
@@ -841,7 +890,7 @@
       <spirit:file>
         <spirit:name>hdl/IMAGE_REC.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_e764ea61</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_427b5a5a</spirit:userFileType>
         <spirit:logicalName>xil_defaultlib</spirit:logicalName>
       </spirit:file>
     </spirit:fileSet>
@@ -900,7 +949,7 @@
         <spirit:name>xgui/Image_Re_AXI_v1_0.tcl</spirit:name>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_520dbffd</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_39e43745</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1082,6 +1131,21 @@
       <spirit:displayName>Addr Width</spirit:displayName>
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.addr_width" spirit:order="1100">16</spirit:value>
     </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>col_max_bit</spirit:name>
+      <spirit:displayName>Col Max Bit</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.col_max_bit" spirit:order="1100">8</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>row_max_bit</spirit:name>
+      <spirit:displayName>Row Max Bit</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.row_max_bit" spirit:order="1200">8</spirit:value>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>data_delay</spirit:name>
+      <spirit:displayName>Data Delay</spirit:displayName>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.data_delay" spirit:order="1100">2</spirit:value>
+    </spirit:parameter>
   </spirit:parameters>
   <spirit:vendorExtensions>
     <xilinx:coreExtensions>
@@ -1093,11 +1157,11 @@
       </xilinx:taxonomies>
       <xilinx:displayName>Image_Re_AXI_v1.0</xilinx:displayName>
       <xilinx:vendorDisplayName>https://github.com/dtysky/Image_Re_Sample_AXI</xilinx:vendorDisplayName>
-      <xilinx:coreRevision>10</xilinx:coreRevision>
+      <xilinx:coreRevision>13</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>xilinx.com:user:Image_Re_AXI:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2014-09-13T15:27:28Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2014-09-14T07:00:01Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="xilinx.com:user:Image_Re_AXI:1.0_ARCHIVE_LOCATION">D:/Spira_Heaven/0-MyWorks/Image_Re_AXI/Image_Re_AXI_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="dtysky:user:Image_Re_AXI:1.0_ARCHIVE_LOCATION">D:/Spira_Heaven/0-MyWorks/Image_Re_AXI/Image_Re_AXI_1.0</xilinx:tag>
@@ -1108,10 +1172,10 @@
       <xilinx:xilinxVersion>2014.2</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="f45a6aca"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="cafe3ba6"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="299639ea"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="dc6682f9"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="966e7b97"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="5d3c07ab"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="6f124d73"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="d6cf2432"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="aca47ea7"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="46207804"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>

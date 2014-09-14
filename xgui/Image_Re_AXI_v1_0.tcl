@@ -7,8 +7,11 @@ proc init_gui { IPINST } {
 	set C_S00_AXI_ADDR_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_S00_AXI_ADDR_WIDTH]
 	set_property tooltip {Width of S_AXI address bus} $C_S00_AXI_ADDR_WIDTH
 	set addr_width [ipgui::add_param $IPINST -parent $Page0 -name addr_width]
+	set col_max_bit [ipgui::add_param $IPINST -parent $Page0 -name col_max_bit]
+	set data_delay [ipgui::add_param $IPINST -parent $Page0 -name data_delay]
 	set C_S00_AXI_DATA_WIDTH [ipgui::add_param $IPINST -parent $Page0 -name C_S00_AXI_DATA_WIDTH]
 	set_property tooltip {Width of S_AXI data bus} $C_S00_AXI_DATA_WIDTH
+	set row_max_bit [ipgui::add_param $IPINST -parent $Page0 -name row_max_bit]
 	set diff_min [ipgui::add_param $IPINST -parent $Page0 -name diff_min]
 	set diff_max [ipgui::add_param $IPINST -parent $Page0 -name diff_max]
 	set b_b_min [ipgui::add_param $IPINST -parent $Page0 -name b_b_min]
@@ -69,12 +72,39 @@ proc validate_PARAM_VALUE.addr_width { PARAM_VALUE.addr_width } {
 	return true
 }
 
+proc update_PARAM_VALUE.col_max_bit { PARAM_VALUE.col_max_bit } {
+	# Procedure called to update col_max_bit when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.col_max_bit { PARAM_VALUE.col_max_bit } {
+	# Procedure called to validate col_max_bit
+	return true
+}
+
+proc update_PARAM_VALUE.data_delay { PARAM_VALUE.data_delay } {
+	# Procedure called to update data_delay when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.data_delay { PARAM_VALUE.data_delay } {
+	# Procedure called to validate data_delay
+	return true
+}
+
 proc update_PARAM_VALUE.C_S00_AXI_DATA_WIDTH { PARAM_VALUE.C_S00_AXI_DATA_WIDTH } {
 	# Procedure called to update C_S00_AXI_DATA_WIDTH when any of the dependent parameters in the arguments change
 }
 
 proc validate_PARAM_VALUE.C_S00_AXI_DATA_WIDTH { PARAM_VALUE.C_S00_AXI_DATA_WIDTH } {
 	# Procedure called to validate C_S00_AXI_DATA_WIDTH
+	return true
+}
+
+proc update_PARAM_VALUE.row_max_bit { PARAM_VALUE.row_max_bit } {
+	# Procedure called to update row_max_bit when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.row_max_bit { PARAM_VALUE.row_max_bit } {
+	# Procedure called to validate row_max_bit
 	return true
 }
 
@@ -277,6 +307,11 @@ proc validate_PARAM_VALUE.row_max { PARAM_VALUE.row_max } {
 }
 
 
+proc update_MODELPARAM_VALUE.data_delay { MODELPARAM_VALUE.data_delay PARAM_VALUE.data_delay } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.data_delay}] ${MODELPARAM_VALUE.data_delay}
+}
+
 proc update_MODELPARAM_VALUE.row_max { MODELPARAM_VALUE.row_max PARAM_VALUE.row_max } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.row_max}] ${MODELPARAM_VALUE.row_max}
@@ -285,6 +320,16 @@ proc update_MODELPARAM_VALUE.row_max { MODELPARAM_VALUE.row_max PARAM_VALUE.row_
 proc update_MODELPARAM_VALUE.col_max { MODELPARAM_VALUE.col_max PARAM_VALUE.col_max } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.col_max}] ${MODELPARAM_VALUE.col_max}
+}
+
+proc update_MODELPARAM_VALUE.row_max_bit { MODELPARAM_VALUE.row_max_bit PARAM_VALUE.row_max_bit } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.row_max_bit}] ${MODELPARAM_VALUE.row_max_bit}
+}
+
+proc update_MODELPARAM_VALUE.col_max_bit { MODELPARAM_VALUE.col_max_bit PARAM_VALUE.col_max_bit } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.col_max_bit}] ${MODELPARAM_VALUE.col_max_bit}
 }
 
 proc update_MODELPARAM_VALUE.addr_width { MODELPARAM_VALUE.addr_width PARAM_VALUE.addr_width } {
