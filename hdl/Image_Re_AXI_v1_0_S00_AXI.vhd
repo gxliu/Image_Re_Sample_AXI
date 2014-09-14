@@ -261,7 +261,7 @@ begin
                 row_max=>row_max,
                 col_max=>col_max,
                 row_max_bit=>row_max_bit,
-                col_max_bit=>row_max_bit,
+                col_max_bit=>col_max_bit,
                 addr_width=>addr_width,
                 
                 y_r_max=>y_r_max,

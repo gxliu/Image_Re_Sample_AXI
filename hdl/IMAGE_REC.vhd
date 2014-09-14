@@ -93,7 +93,7 @@ signal con_col:integer range 0 to col_max-1:=0;
 
 begin
 
-VCNT<=conv_std_logic_vector(con_row,col_max_bit);
+VCNT<=conv_std_logic_vector(con_row,row_max_bit);
 HCNT<=conv_std_logic_vector(con_col,col_max_bit);
 	
 addr<=addr_s;
